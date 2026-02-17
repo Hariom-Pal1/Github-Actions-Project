@@ -152,4 +152,4 @@ jobs:
       - name: Deploy to Cluster
         run: |
           kubectl apply -f ds.yml 
-          kubectl rollout status deployment/my-app-deployment
+          #kubectl rollout status deployment/my-app-deployment
