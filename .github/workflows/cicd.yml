@@ -6,7 +6,7 @@ on:
 
 jobs:
   compile:
-    runs-on: ubuntu-latest
+    runs-on: agent
 
     steps:
     - uses: actions/checkout@v4
@@ -20,7 +20,7 @@ jobs:
       run: mvn compile
       
   security-check:
-    runs-on: ubuntu-latest
+    runs-on: agent
     needs: compile
 
     steps:
@@ -42,7 +42,7 @@ jobs:
       run: gitleaks detect source . -r gitleaks-report.json -f json
 
   test:
-    runs-on: self-hosted
+    runs-on: agent
     needs: security-check
     steps:
     - uses: actions/checkout@v4
@@ -56,7 +56,7 @@ jobs:
       run: mvn test
 
   build_project_and_sonar_scan:
-    runs-on: self-hosted
+    runs-on: agent
     needs: test
     steps:
     - uses: actions/checkout@v4
@@ -93,7 +93,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
   buils_docker_image_and_push:
-    runs-on: self-hosted
+    runs-on: agent
     needs: build_project_and_sonar_scan
     steps:
     - uses: actions/checkout@v4
