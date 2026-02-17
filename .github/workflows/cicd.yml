@@ -119,5 +119,44 @@ jobs:
         push: true
         tags: hariompal4/bankapp:latest
         file: ./Dockerfile
+        
 
+deploy_to_kubernetes:
+    runs-on: agent 
+    needs: buils_docker_image_and_push
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
+    # Agar aapki Image AWS ECR mein hai toh ye block rakhein,
+    # Agar DockerHub use kar rahe hain toh isse hata dein.
+    # - name: Configure AWS credentials
+    #   uses: aws-actions/configure-aws-credentials@v2
+    #   with:
+    #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #     aws-region: ap-south-1
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.30.0' # Jo version aapke cluster ka hai wahi dalein
+
+    - name: Create Kubeconfig
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+        chmod 600 $HOME/.kube/config
+
+    - name: Verify Connection
+      run: kubectl get nodes
+      # Ye step confirm karega ki runner aapke cluster se connect ho gaya hai
+
+    - name: Deploy to Cluster
+      run: |
+        # Yahan apni deployment file ka naam likhein
+        kubectl apply -f ds.yml 
+        # Ya agar folder hai toh: kubectl apply -f k8s/
+        
+        # Deployment ka status check karein
+        kubectl rollout status deployment/my-app-deployment
