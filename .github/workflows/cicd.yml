@@ -120,8 +120,7 @@ jobs:
         tags: hariompal4/bankapp:latest
         file: ./Dockerfile
         
-
-deploy_to_kubernetes:
+ deploy_to_kubernetes:
     runs-on: agent 
     needs: buils_docker_image_and_push
     steps:
